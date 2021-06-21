@@ -20,23 +20,23 @@
 //#CHANGEKINETICS: This function returns the kinetic constant of Hom's law as a function of Temp and TIR
 double logKineticSODIS(double Temperature, double Radiation)
 {
-	return k1 * pow(Radiation, alpha)*exp(-Ea1 / (273.0 + Temperature) + k2 * exp(-Ea2 / (273.0 + Temperature)));
+	return k1 * pow(Radiation, alpha) * exp(-Ea1 / (273.0 + Temperature) + k2 * exp(-Ea2 / (273.0 + Temperature)));
 }
 
 
 std::vector<double> getInstantTemp(double minTemp, double maxTemp, double timestep, int nSteps)
 {
-	double level = 0.25*timestep*nSteps;
+	double level = 0.25 * timestep * nSteps;
 	double xFactor = 7.27221E-05; //2*PI/día en segundos
-	double yFactor = 0.5*(maxTemp - minTemp);
-	double aveT = 0.5*(maxTemp + minTemp);
+	double yFactor = 0.5 * (maxTemp - minTemp);
+	double aveT = 0.5 * (maxTemp + minTemp);
 	std::vector<double> result;
 	for (int cT = 0; cT < nSteps; cT++)
-		result.push_back(aveT+yFactor*sin(xFactor*(cT*timestep-level)));
+		result.push_back(aveT + yFactor * sin(xFactor * (cT * timestep - level)));
 	return result;
 }
 
-double calculateDay(int day, int month, double latitude, double elevation, std::vector<double> &AM, std::vector<double> &cosZ, double &sunDistance, double temperature = 30.0)
+double calculateDay(int day, int month, double latitude, double elevation, std::vector<double>& AM, std::vector<double>& cosZ, double& sunDistance, double temperature = 30.0)
 {
 	spa_data spa;  //declare the SPA structure
 	int result;
@@ -66,12 +66,12 @@ double calculateDay(int day, int month, double latitude, double elevation, std::
 	//call the SPA calculate function and pass the SPA structure
 	result = spa_calculate(&spa);
 	sunDistance = 1.0 / spa.r;
-	min = 60.0*(spa.sunrise - (int)spa.sunrise);
-	sec = 60.0*(min - (int)min);
+	min = 60.0 * (spa.sunrise - (int)spa.sunrise);
+	sec = 60.0 * (min - (int)min);
 	spa.hour = (int)spa.sunrise;
 	spa.minute = (int)min;
 	spa.second = sec;
-	double timestep = (spa.sunset - spa.sunrise)*40.0;
+	double timestep = (spa.sunset - spa.sunrise) * 40.0;
 	for (int i = 0; i < 90; i++)
 	{
 		result = spa_calculate(&spa);
@@ -79,7 +79,7 @@ double calculateDay(int day, int month, double latitude, double elevation, std::
 			break;
 		double a = cos(deg2rad(spa.zenith));
 		double c = elevation / 9000.0;
-		double b = sqrt((rAM + c)*(rAM + c)*a*a + (2 * rAM + 1 + c)) - (rAM + c)*a;
+		double b = sqrt((rAM + c) * (rAM + c) * a * a + (2 * rAM + 1 + c)) - (rAM + c) * a;
 		//double b = (1.002432*a*a + 0.148386*a + 0.0096467) / (a*a*a + 0.149864*a*a + 0.0102963*a + 0.000303978);
 		AM.push_back(b);
 		cosZ.push_back(deg2rad(spa.zenith));
@@ -98,8 +98,8 @@ double calculateDay(int day, int month, double latitude, double elevation, std::
 	return timestep;
 }
 
-double calculateDay(int day, int month, double latitude, double elevation, double UTC, std::vector<double> &AM, std::vector<double> &cosZ, std::vector<double> &zenith,
-	std::vector<double> &azimuth, double &sunDistance, double* hours, double temperature = 30.0)
+double calculateDay(int day, int month, double latitude, double elevation, double UTC, std::vector<double>& AM, std::vector<double>& cosZ, std::vector<double>& zenith,
+	std::vector<double>& azimuth, double& sunDistance, double* hours, double temperature = 30.0)
 {
 	spa_data spa;  //declare the SPA structure
 	int result;
@@ -129,12 +129,12 @@ double calculateDay(int day, int month, double latitude, double elevation, doubl
 	//call the SPA calculate function and pass the SPA structure
 	result = spa_calculate(&spa);
 	sunDistance = 1.0 / spa.r;
-	min = 60.0*(spa.sunrise - (int)spa.sunrise);
-	sec = 60.0*(min - (int)min);
+	min = 60.0 * (spa.sunrise - (int)spa.sunrise);
+	sec = 60.0 * (min - (int)min);
 	spa.hour = (int)spa.sunrise;
 	spa.minute = (int)min;
 	spa.second = sec;
-	double timestep = (spa.sunset - spa.sunrise)*40.0;
+	double timestep = (spa.sunset - spa.sunrise) * 40.0;
 	for (int i = 0; i < 90; i++)
 	{
 		result = spa_calculate(&spa);
@@ -144,7 +144,7 @@ double calculateDay(int day, int month, double latitude, double elevation, doubl
 		azimuth.push_back(spa.azimuth);
 		double a = cos(deg2rad(spa.zenith));
 		double c = elevation / 9000.0;
-		double b = sqrt((rAM + c)*(rAM + c)*a*a + (2 * rAM + 1 + c)) - (rAM + c)*a;
+		double b = sqrt((rAM + c) * (rAM + c) * a * a + (2 * rAM + 1 + c)) - (rAM + c) * a;
 		//double b = (1.002432*a*a + 0.148386*a + 0.0096467) / (a*a*a + 0.149864*a*a + 0.0102963*a + 0.000303978);
 		AM.push_back(b);
 		cosZ.push_back(deg2rad(spa.zenith));
@@ -177,45 +177,45 @@ double calculateDayRadTemp
 	double minTemp,
 	double maxTemp,
 	double UTC,
-	std::vector<double> &TIR,
-	std::vector<double> &instantT,
-	std::vector<double> &zenith,
-	std::vector<double> &azimuth,
-	std::vector<double> &difFraction,
-	double * WL,
-	double * I0,
-	double *kAtm,
+	std::vector<double>& TIR,
+	std::vector<double>& instantT,
+	std::vector<double>& zenith,
+	std::vector<double>& azimuth,
+	std::vector<double>& difFraction,
+	double* WL,
+	double* I0,
+	double* kAtm,
 	int lines,
-	std::vector<double> &hours
+	std::vector<double>& hours
 )
 {
 	std::vector<double> daylyAM, cosZ;
 	double sunDistance = 1.0;
 	double sunrise = 0.0;
-	double timestep = calculateDay(day, month, latitude, elevation, UTC, daylyAM, cosZ, zenith, azimuth, sunDistance,&sunrise, 0.5*(maxTemp + minTemp));
+	double timestep = calculateDay(day, month, latitude, elevation, UTC, daylyAM, cosZ, zenith, azimuth, sunDistance, &sunrise, 0.5 * (maxTemp + minTemp));
 	double dayVal = 0.0;
 	for (int cT = 0; cT < daylyAM.size(); cT++)
 	{
 		double currentAM = daylyAM[cT];
 		double currentI = 0;
 		for (int cWL = 20; cWL < lines - 10; cWL++)
-			currentI += (WL[cWL] - WL[cWL - 1])*0.5*(I0[cWL] * exp(-currentAM * kAtm[cWL]) + I0[cWL - 1] * exp(-currentAM * kAtm[cWL - 1]));
+			currentI += (WL[cWL] - WL[cWL - 1]) * 0.5 * (I0[cWL] * exp(-currentAM * kAtm[cWL]) + I0[cWL - 1] * exp(-currentAM * kAtm[cWL - 1]));
 		currentI *= sunDistance;
 		//TIR value from MTI
-		double DIC = 2.0*currentI*(0.182 - 9.26e-5*cloud + 6.77e-4*sin(0.06981317*latitude + 1.2));
-		currentI *= (1.09090296 - 0.00536302*cloud + 0.00124499*sin(0.06981317*latitude + 1.2));
+		double DIC = 2.0 * currentI * (0.182 - 9.26e-5 * cloud + 6.77e-4 * sin(0.06981317 * latitude + 1.2));
+		currentI *= (1.09090296 - 0.00536302 * cloud + 0.00124499 * sin(0.06981317 * latitude + 1.2));
 		difFraction.push_back(DIC / currentI);
 		TIR.push_back(currentI);
-		hours.push_back(sunrise+timestep*(double)cT/3600.0);
+		hours.push_back(sunrise + timestep * (double)cT / 3600.0);
 	}
 	instantT = getInstantTemp(minTemp, maxTemp, timestep, daylyAM.size());
 	return timestep;
 }
 
-int getCommonSpecter(double* &WL, double* &I0, double* &kAtm)
+int getCommonSpecter(double*& WL, double*& I0, double*& kAtm)
 {
-	char *p; char line_c[200]; int i = 0; FILE * myfile;
-	fopen_s(&myfile, "kAM.txt","r");
+	char* p; char line_c[200]; int i = 0; FILE* myfile;
+	fopen_s(&myfile, "kAM.txt", "r");
 	int lines = 1;
 	while (fgets(line_c, 200, myfile))
 		lines++;
@@ -223,7 +223,7 @@ int getCommonSpecter(double* &WL, double* &I0, double* &kAtm)
 	double* I02 = new double[lines];
 	double* kAtm2 = new double[lines];
 	fclose(myfile);
-	fopen_s(&myfile, "kAM.txt","r");
+	fopen_s(&myfile, "kAM.txt", "r");
 	while (fgets(line_c, 200, myfile))
 	{
 		std::string line(line_c);
@@ -244,8 +244,8 @@ void getAllSodisData()
 {
 	char buffer[200];
 	std::string s;
-	FILE *monthBothAvg,*totalFile;
-	fopen_s(&totalFile,"totalSodis", "w");
+	FILE* monthBothAvg, * totalFile;
+	fopen_s(&totalFile, "totalSodis", "w");
 	for (int month = 0; month < 12; month++)
 	{
 		_itoa_s(month + 1, buffer, 10);
@@ -262,54 +262,54 @@ void getAllSodisData()
 
 double simpleInterp(double x, double x1, double x2, double y1, double y2)
 {
-	return y1 + (y2 - y1)*(x - x1)/(x2 - x1);
+	return y1 + (y2 - y1) * (x - x1) / (x2 - x1);
 }
 
-bool * readPositions(int & totalPositions)
+bool* readPositions(int& totalPositions)
 {
-	FILE * readFile;
+	FILE* readFile;
 	fopen_s(&readFile, "AvailableBoolHD", "rb");
-	bool * positions = (bool *)malloc(sizeof(bool) * 720 * 360);
+	bool* positions = (bool*)malloc(sizeof(bool) * 720 * 360);
 	fread(positions, sizeof(bool), 720 * 360, readFile);
 	fclose(readFile);
 	totalPositions = 0;
-	for(int i = 0; i < 720*360; i++)
-		if(positions[i])
+	for (int i = 0; i < 720 * 360; i++)
+		if (positions[i])
 			totalPositions++;
-		return positions;
+	return positions;
 }
-double * readElevations(int totalPositions)
+double* readElevations(int totalPositions)
 {
-	short* shortElev = (short*)malloc(sizeof(short)*totalPositions);
-	FILE * readFile;
+	short* shortElev = (short*)malloc(sizeof(short) * totalPositions);
+	FILE* readFile;
 	fopen_s(&readFile, "elevHD", "rb");
 	fread(shortElev, sizeof(short), totalPositions, readFile);
 	fclose(readFile);
-	double* elevations = (double*)malloc(sizeof(double)*totalPositions);
-	for(int i = 0; i < totalPositions; i++)
-		elevations[i]=shortElev[i]/100.0;
+	double* elevations = (double*)malloc(sizeof(double) * totalPositions);
+	for (int i = 0; i < totalPositions; i++)
+		elevations[i] = shortElev[i] / 100.0;
 	free(shortElev);
 	return elevations;
 }
 
 
 
-double * getAtemporalValues(double latitude, double longitude)
+double* getAtemporalValues(double latitude, double longitude)
 {
 	//reading elevation and timezone
 	//returns a double array of 13 values: 0-11 are deltaUTC values for each month. 12 is elevation
 	//if nullpoint (sea), returns -15.0, to avoid extra computation
-	FILE * readFile;
+	FILE* readFile;
 	fopen_s(&readFile, "AvailableIntHD", "rb");
-	int * positions = (int *)malloc(sizeof(int) * 720 * 360);
+	int* positions = (int*)malloc(sizeof(int) * 720 * 360);
 	fread(positions, sizeof(int), 720 * 360, readFile);
 	fclose(readFile);
 	/* 0 --- 1
 	   |     |
 	   2-----3
 	*/
-	int latI = floor(2.0*latitude + 180.0);
-	int longI = floor(2.0*longitude + 360.0);
+	int latI = floor(2.0 * latitude + 180.0);
+	int longI = floor(2.0 * longitude + 360.0);
 	int pos[4];
 	double lat1 = latI * 0.5 - 90.0;
 	double lat2 = lat1 + 0.5;
@@ -321,14 +321,14 @@ double * getAtemporalValues(double latitude, double longitude)
 	pos[3] = positions[latI * 720 + longI + 721];
 	free(positions);
 
-	double * result = (double *)malloc(sizeof(double) * 13);
+	double* result = (double*)malloc(sizeof(double) * 13);
 	if (pos[0] == -1 && pos[1] == -1 && pos[2] == -1 && pos[3] == -1)
 	{
 		for (int i = 0; i < 13; i++)
 			result[i] = -15.0;
 		return result;
 	}
-	short * elevRead = (short*)malloc(sizeof(short) * (pos[3] + 1));
+	short* elevRead = (short*)malloc(sizeof(short) * (pos[3] + 1));
 	short elev[4];
 	fopen_s(&readFile, "elevHD", "rb");
 	fread(elevRead, sizeof(short), (pos[3] + 1), readFile);
@@ -360,14 +360,14 @@ double * getAtemporalValues(double latitude, double longitude)
 	else
 		result[12] = simpleInterp(latitude, lat1, lat2, elev1, elev2);
 
-	char * UTCread = (char*)malloc(sizeof(char) * (pos[0] + 1));
+	char* UTCread = (char*)malloc(sizeof(char) * (pos[0] + 1));
 	char UTCval;
 	fopen_s(&readFile, "UTCmapDST", "rb");
 	fread(UTCread, sizeof(char), (pos[0] + 1), readFile);
 	UTCval = UTCread[pos[0]];
 
 	//en horas
-	double deltaUTC = 0.5* (double)(UTCval / 2 - 24);
+	double deltaUTC = 0.5 * (double)(UTCval / 2 - 24);
 	for (int i = 0; i < 12; i++)
 		result[i] = deltaUTC;
 	if (UTCval % 2)
@@ -386,33 +386,33 @@ double * getAtemporalValues(double latitude, double longitude)
 	return result;
 }
 
-double * readMetheo(int totalPositions, const char * fileName)
+double* readMetheo(int totalPositions, const char* fileName)
 {
-	short * shortMet = (short*)malloc(sizeof(short)*totalPositions);
-	FILE * readFile;
+	short* shortMet = (short*)malloc(sizeof(short) * totalPositions);
+	FILE* readFile;
 	fopen_s(&readFile, fileName, "rb");
 	fread(shortMet, sizeof(short), totalPositions, readFile);
 	fclose(readFile);
-	double * metheoData = (double*)malloc(sizeof(double)*totalPositions);
-	for(int i = 0; i < totalPositions; i++)
-		metheoData[i]=shortMet[i]/100.0;
+	double* metheoData = (double*)malloc(sizeof(double) * totalPositions);
+	for (int i = 0; i < totalPositions; i++)
+		metheoData[i] = shortMet[i] / 100.0;
 	free(shortMet);
 	return metheoData;
 }
 
-double *  interpolateMonthData(double latitude, double longitude, int month)
+double* interpolateMonthData(double latitude, double longitude, int month)
 {
-	FILE * readFile;
+	FILE* readFile;
 	fopen_s(&readFile, "AvailableIntHD", "rb");
-	int * positions = (int *)malloc(sizeof(int) * 720 * 360);
+	int* positions = (int*)malloc(sizeof(int) * 720 * 360);
 	fread(positions, sizeof(int), 720 * 360, readFile);
 	fclose(readFile);
 	/* 0 --- 1
 	   |     |
 	   2-----3
 	*/
-	int latI = floor(2.0*latitude + 180.0);
-	int longI = floor(2.0*longitude + 360.0);
+	int latI = floor(2.0 * latitude + 180.0);
+	int longI = floor(2.0 * longitude + 360.0);
 	int pos[4];
 	double lat1 = latI * 0.5 - 90.0;
 	double lat2 = lat1 + 0.5;
@@ -423,24 +423,24 @@ double *  interpolateMonthData(double latitude, double longitude, int month)
 	pos[2] = positions[latI * 720 + longI + 720];
 	pos[3] = positions[latI * 720 + longI + 721];
 	free(positions);
-	
-	double * result = (double *)malloc(sizeof(double) * 3);
+
+	double* result = (double*)malloc(sizeof(double) * 3);
 	if (pos[0] == -1 && pos[1] == -1 && pos[2] == -1 && pos[3] == -1)
 	{
 		result[0] = 0.0; result[1] = 0.0; result[2] = 0.0;
 		return result;
 	}
 
-	short * monthRead = (short*)malloc(sizeof(short) * (pos[3]+1));
+	short* monthRead = (short*)malloc(sizeof(short) * (pos[3] + 1));
 	fopen_s(&readFile, (std::string("minTHD") + std::to_string(month)).c_str(), "rb");
-	fread(monthRead, sizeof(short), (pos[3]+1), readFile);
+	fread(monthRead, sizeof(short), (pos[3] + 1), readFile);
 	short minT[4], maxT[4], cloud[4];
 	minT[0] = monthRead[pos[0]];
 	minT[1] = monthRead[pos[1]];
 	minT[2] = monthRead[pos[2]];
 	minT[3] = monthRead[pos[3]];
 	fclose(readFile);
-		
+
 	double TLat1 = 0.0;
 	if (pos[0] == -1 && pos[1] == -1)
 		TLat1 = 0.0;
@@ -455,7 +455,7 @@ double *  interpolateMonthData(double latitude, double longitude, int month)
 		TLat2 = (pos[2] == -1) ? minT[2] : minT[3];
 	else
 		TLat2 = simpleInterp(longitude, long1, long2, (double)minT[2] / 100.0, (double)minT[3] / 100.0);
-		
+
 	if (pos[0] == -1 && pos[1] == -1)
 		result[0] = TLat2;
 	else if (pos[2] == -1 && pos[3] == -1)
@@ -521,34 +521,34 @@ double *  interpolateMonthData(double latitude, double longitude, int month)
 		result[2] = simpleInterp(latitude, lat1, lat2, TLat1, TLat2);
 
 	return result;
-	
+
 }
 
 
-void generateTirChart(double latitude, double longitude, const char * fileName)
+void generateTirChart(double latitude, double longitude, const char* fileName)
 {
 	//Obtiene las longitudes de onda y constantes de extincion para la atmosfera, en 1/AM
-	double * WL, *I0, *kAtm;
+	double* WL, * I0, * kAtm;
 	int lines = getCommonSpecter(WL, I0, kAtm);
 
-	
-	double * aTempValues = getAtemporalValues(latitude, longitude);
+
+	double* aTempValues = getAtemporalValues(latitude, longitude);
 	if (aTempValues[0] == -15.0)
 	{
 		free(aTempValues);
 		return;
 	}
-	
+
 	//Obtengo los datos meteorólogicos medios de cada mes
-	double ** monthValues = (double**)malloc(sizeof(double*) * 12);
+	double** monthValues = (double**)malloc(sizeof(double*) * 12);
 	for (int i = 0; i < 12; i++)
 		monthValues[i] = interpolateMonthData(latitude, longitude, i);
 	char buffer[3];
 	std::string s;
-	FILE * resultsFile;
+	FILE* resultsFile;
 	fopen_s(&resultsFile, fileName, "w");
-	int latI = 2.0*latitude + 180;
-	int longI = 2.0*longitude + 360;
+	int latI = 2.0 * latitude + 180;
+	int longI = 2.0 * longitude + 360;
 	int yearDay = 0;
 	for (int month = 0; month < 12; month++)
 	{
@@ -569,9 +569,9 @@ void generateTirChart(double latitude, double longitude, const char * fileName)
 			double cloudCoverage = monthValues[month][2];
 			if (day < 15)
 			{
-				minT = simpleInterp(day, -15.0, 15.0, monthValues[(12+month - 1) % 12][0], minT);
-				maxT = simpleInterp(day, -15.0, 15.0, monthValues[(12+month - 1) % 12][1], maxT);
-				cloudCoverage = simpleInterp(day, -15.0, 15.0, monthValues[(12+month - 1) % 12][2], cloudCoverage);
+				minT = simpleInterp(day, -15.0, 15.0, monthValues[(12 + month - 1) % 12][0], minT);
+				maxT = simpleInterp(day, -15.0, 15.0, monthValues[(12 + month - 1) % 12][1], maxT);
+				cloudCoverage = simpleInterp(day, -15.0, 15.0, monthValues[(12 + month - 1) % 12][2], cloudCoverage);
 			}
 			if (day > 15)
 			{
@@ -601,8 +601,8 @@ void generateTirChart(double latitude, double longitude, const char * fileName)
 				hours
 			);
 			for (int i = 0; i < daylyI.size(); i++)
-				fprintf(resultsFile, "%d\t%d\t%d\t%f\t%f\t%f\t%f\t%f\t%f\n", 
-					month+1, day, yearDay, hours[i], daylyT[i], daylyI[i], difFraction[i], daylyZenith[i], daylyAzimuth[i]);
+				fprintf(resultsFile, "%d\t%d\t%d\t%f\t%f\t%f\t%f\t%f\t%f\n",
+					month + 1, day, yearDay, hours[i], daylyT[i], daylyI[i], difFraction[i], daylyZenith[i], daylyAzimuth[i]);
 		}
 	}
 	fclose(resultsFile);
@@ -611,25 +611,25 @@ void generateTirChart(double latitude, double longitude, const char * fileName)
 void disinfection()
 {
 	//Reading wavelength and atmospheric extinction coefficients (1/AM)
-	double * WL, *I0, *kAtm;
+	double* WL, * I0, * kAtm;
 	int lines = getCommonSpecter(WL, I0, kAtm);
-	
+
 	//reading terrain elevation
 	int totalPositions;
-	bool * positions = readPositions(totalPositions);
-	double * elevations = readElevations(totalPositions);
-	
+	bool* positions = readPositions(totalPositions);
+	double* elevations = readElevations(totalPositions);
+
 	//reading metheorological data
-	double ** minT = (double**)malloc(sizeof(double*)*12);
-	double ** maxT = (double**)malloc(sizeof(double*)*12);
-	double ** cloud = (double**)malloc(sizeof(double*)*12);
+	double** minT = (double**)malloc(sizeof(double*) * 12);
+	double** maxT = (double**)malloc(sizeof(double*) * 12);
+	double** cloud = (double**)malloc(sizeof(double*) * 12);
 	for (int month = 0; month < 12; month++)
 	{
 		minT[month] = readMetheo(totalPositions, (std::string("minTHD") + std::to_string(month)).c_str());
 		maxT[month] = readMetheo(totalPositions, (std::string("maxTHD") + std::to_string(month)).c_str());
 		cloud[month] = readMetheo(totalPositions, (std::string("cloudTHD") + std::to_string(month)).c_str());
 	}
-	
+
 
 	char buffer[3];
 	std::string s;
@@ -637,11 +637,11 @@ void disinfection()
 	{
 		//creating file to write results
 		_itoa_s(month + 1, buffer, 10);
-		FILE *monthBothAvg;
+		FILE* monthBothAvg;
 		s = "month" + std::string(buffer);
 		fopen_s(&monthBothAvg, s.c_str(), "w");
 		s = "15/" + std::string(buffer) + "/2019";
-		
+
 		int daysInMonth = 31;
 		if (month == 3 || month == 5 || month == 8 || month == 10)
 			daysInMonth = 30;
@@ -649,7 +649,7 @@ void disinfection()
 			daysInMonth = 28;
 		for (int latI = 68; latI < 314; latI++) //polar circles: from 47 to 314. 47 to 68 is empty
 		{
-			double latitude = 0.5*(double)(latI)-90.0;
+			double latitude = 0.5 * (double)(latI)-90.0;
 			std::vector<double> minBatchTime(720, 0.0);
 			std::vector<int> monthBatches(720, 0);
 			for (int longI = 0; longI < 720; longI++)
@@ -657,38 +657,43 @@ void disinfection()
 				//checking if point is available
 				if (!positions[latI * 720 + longI])
 					continue;
-				if (maxTemp[month][latI*720+longI] < 4.0)
+				if (maxT[month][latI * 720 + longI] < 4.0)
 					continue;
-			//loop along days in month
-			for (int day = 1; day <= daysInMonth; day++)
-			{
-				std::vector<double> daylyI, daylyT;
-				double timestep = calculateDayRadTemp
-				(
-					day,
-					month + 1,
-					latitude,
-					elevations[latI*720+longI],
-					(day<15)
-						? simpleInterp(day, -15, 15, cloud[(month+11)%12][latI*720+longI], cloud[month][latI*720+longI])
-						: simpleInterp(day, 15, daysInMonth+15, cloud[month][latI*720+longI], cloud[(month+1)%12][latI*720+longI]),
-					(day<15)
-						? simpleInterp(day, -15, 15, minT[(month+11)%12][latI*720+longI], minT[month][latI*720+longI])
-						: simpleInterp(day, 15, daysInMonth+15, minT[month][latI*720+longI], minT[(month+1)%12][latI*720+longI]),
-					(day<15)
-						? simpleInterp(day, -15, 15, maxT[(month+11)%12][latI*720+longI], maxT[month][latI*720+longI])
-						: simpleInterp(day, 15, daysInMonth+15, maxT[month][latI*720+longI], maxT[(month+1)%12][latI*720+longI]),
-					daylyI,
-					daylyT, 
-					WL, 
-					I0, 
-					kAtm, 
-					lines
-				);
+				//loop along days in month
+				for (int day = 1; day <= daysInMonth; day++)
+				{
+					std::vector<double> daylyI, daylyT, daylyZenith, daylyAzimuth, daylyDifF, daylyHours;
+					double timestep = calculateDayRadTemp
+					(
+						day,
+						month + 1,
+						latitude,
+						elevations[latI * 720 + longI],
+						(day < 15)
+						? simpleInterp(day, -15, 15, cloud[(month + 11) % 12][latI * 720 + longI], cloud[month][latI * 720 + longI])
+						: simpleInterp(day, 15, daysInMonth + 15, cloud[month][latI * 720 + longI], cloud[(month + 1) % 12][latI * 720 + longI]),
+						(day < 15)
+						? simpleInterp(day, -15, 15, minT[(month + 11) % 12][latI * 720 + longI], minT[month][latI * 720 + longI])
+						: simpleInterp(day, 15, daysInMonth + 15, minT[month][latI * 720 + longI], minT[(month + 1) % 12][latI * 720 + longI]),
+						(day < 15)
+						? simpleInterp(day, -15, 15, maxT[(month + 11) % 12][latI * 720 + longI], maxT[month][latI * 720 + longI])
+						: simpleInterp(day, 15, daysInMonth + 15, maxT[month][latI * 720 + longI], maxT[(month + 1) % 12][latI * 720 + longI]),
+						0.0,
+						daylyI,
+						daylyT, 
+						daylyZenith, 
+						daylyAzimuth, 
+						daylyDifF,
+						WL,
+						I0,
+						kAtm,
+						lines,
+						daylyHours
+					);
 
 					//a vector of possible starting points of optimum batch to estimate minimum time
 					std::vector<double> quickestBatch(daylyI.size(), 0.0);
-					std::vector<double> qBtime(daylyI.size(), 100.0*daylyI.size()*timestep);
+					std::vector<double> qBtime(daylyI.size(), 100.0 * daylyI.size() * timestep);
 					//and a vector to store results
 					double disinfection = 0.0;
 					double elapsedTS = 0.0;
@@ -701,21 +706,21 @@ void disinfection()
 							initPositiveTime += timestep;
 							continue;
 						}
-						
+
 						//#CHANGEKINETICS: if temperature is between 4.0 ºC and 20.0 ºC, 20.0 ºC is used in the model
 						//#CHANGEKINETICS: in the loop below, Hom's law is used to calculate the disinfection
-						double instantKinetics = logKineticSODIS((daylyT[cT]>20.0?daylyT[cT]:20.0), daylyI[cT]);
+						double instantKinetics = logKineticSODIS((daylyT[cT] > 20.0 ? daylyT[cT] : 20.0), daylyI[cT]);
 						for (int cT2 = 0; cT2 <= cT; cT2++)
 						{
 							if (quickestBatch[cT2] == 4.0)
 								continue;
-							
-							double addition = instantKinetics * (pow((cT - cT2 + 1.0)*timestep-initPositiveTime, timeExp)
-								- pow((cT - cT2)*timestep- initPositiveTime, timeExp));
+
+							double addition = instantKinetics * (pow((cT - cT2 + 1.0) * timestep - initPositiveTime, timeExp)
+								- pow((cT - cT2) * timestep - initPositiveTime, timeExp));
 							if ((quickestBatch[cT2] + addition) >= 4.0)
 							{
 								qBtime[cT2] = pow(((4.0 - quickestBatch[cT2] + instantKinetics *
-									pow((cT - cT2)*timestep- initPositiveTime, timeExp)) / instantKinetics), 1.0 / timeExp);
+									pow((cT - cT2) * timestep - initPositiveTime, timeExp)) / instantKinetics), 1.0 / timeExp);
 								quickestBatch[cT2] = 4.0;
 								continue;
 							}
@@ -739,11 +744,11 @@ void disinfection()
 						}
 					}
 
-					double minTime = 100.0*daylyI.size()*timestep;
+					double minTime = 100.0 * daylyI.size() * timestep;
 					for (int cT = 0; cT < daylyI.size(); cT++)
 						if (qBtime[cT] < minTime)
 							minTime = qBtime[cT];
-					if (minTime > 90.0*daylyI.size()*timestep)
+					if (minTime > 90.0 * daylyI.size() * timestep)
 						minBatchTime[longI] += 0.0;
 					else
 						minBatchTime[longI] += (21600.0 / minTime);
@@ -756,7 +761,7 @@ void disinfection()
 					continue;
 				double currentBatches = (double)(monthBatches[longI]) / (double)(daysInMonth);
 				double minTime = minBatchTime[longI] / (double)(daysInMonth);
-				fprintf(monthBothAvg, "%f\t%f\t%s\t%f\t%f\n", latitude, 0.5*(double)(longI)-180.0, s.c_str(),  minTime, currentBatches);
+				fprintf(monthBothAvg, "%f\t%f\t%s\t%f\t%f\n", latitude, 0.5 * (double)(longI)-180.0, s.c_str(), minTime, currentBatches);
 			}
 		}
 		fclose(monthBothAvg);
@@ -764,7 +769,7 @@ void disinfection()
 }
 
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
 	size_t start = clock();
 	//optionally, the model can be used to write the instant radiation along the full year at a given position
@@ -776,4 +781,3 @@ int main(int argc, char *argv[])
 	printf("%f\n", duration);
 	return 0;
 }
-
