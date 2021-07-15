@@ -115,7 +115,6 @@
 //         Changed all variables names from azimuth180 to azimuth_astro
 //         Renamed 2 "utility" function names for consistency
 ///////////////////////////////////////////////////////////////////////////////////////////////
-#include "stdafx.h"
 #include <math.h>
 #include "spa.h"
 
