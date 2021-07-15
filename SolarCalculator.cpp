@@ -1,4 +1,5 @@
-
+// SolarCalculator.cpp : Este archivo contiene la función "main". La ejecución del programa comienza y termina ahí.
+//
 #include <stdio.h>
 #include "spa.h"  //include the SPA header file
 #include <iostream>
@@ -9,9 +10,9 @@
 # define M_PI           3.14159265358979323846
 
 #define timeExp 1.3405  //time exponent of Hom's Law
-#define k1 7.709199746 //s^(-timeExp)
-#define k2 1.1437e+28
-#define Ea1 7417.744722 //both are K-1  (Ea/R)
+#define k1 7.709199746 //s^(-timeExp), appears in min^(-timeExp) in the paper
+#define k2 4.72825E+25 //s^(-timeExp), appears in min^(-timeExp) in the paper
+#define Ea1 7417.744722 //both are K^-1  (Ea/R), dimensionless
 #define Ea2 22780.93448
 #define alpha 1.60547561
 #define rAM 707.8888889
@@ -278,6 +279,17 @@ bool* readPositions(int& totalPositions)
 			totalPositions++;
 	return positions;
 }
+
+int32_t* readIndices()
+{
+	FILE* readFile;
+	fopen_s(&readFile, "AvailableIntHD", "rb");
+	int32_t* positions = (int32_t*)malloc(sizeof(int32_t) * 720 * 360);
+	fread(positions, sizeof(int32_t), 720 * 360, readFile);
+	fclose(readFile);
+	return positions;
+}
+
 double* readElevations(int totalPositions)
 {
 	short* shortElev = (short*)malloc(sizeof(short) * totalPositions);
@@ -617,6 +629,7 @@ void disinfection()
 	//reading terrain elevation
 	int totalPositions;
 	bool* positions = readPositions(totalPositions);
+	int32_t * indices = readIndices();
 	double* elevations = readElevations(totalPositions);
 
 	//reading metheorological data
@@ -627,7 +640,7 @@ void disinfection()
 	{
 		minT[month] = readMetheo(totalPositions, (std::string("minTHD") + std::to_string(month)).c_str());
 		maxT[month] = readMetheo(totalPositions, (std::string("maxTHD") + std::to_string(month)).c_str());
-		cloud[month] = readMetheo(totalPositions, (std::string("cloudTHD") + std::to_string(month)).c_str());
+		cloud[month] = readMetheo(totalPositions, (std::string("cloudHD") + std::to_string(month)).c_str());
 	}
 
 
@@ -647,6 +660,7 @@ void disinfection()
 			daysInMonth = 30;
 		if (month == 1)
 			daysInMonth = 28;
+		daysInMonth = 1;
 		for (int latI = 68; latI < 314; latI++) //polar circles: from 47 to 314. 47 to 68 is empty
 		{
 			double latitude = 0.5 * (double)(latI)-90.0;
@@ -657,7 +671,8 @@ void disinfection()
 				//checking if point is available
 				if (!positions[latI * 720 + longI])
 					continue;
-				if (maxT[month][latI * 720 + longI] < 4.0)
+				int currentPos = indices[latI * 720 + longI];
+				if (maxT[month][currentPos] < 4.0)
 					continue;
 				//loop along days in month
 				for (int day = 1; day <= daysInMonth; day++)
@@ -665,19 +680,22 @@ void disinfection()
 					std::vector<double> daylyI, daylyT, daylyZenith, daylyAzimuth, daylyDifF, daylyHours;
 					double timestep = calculateDayRadTemp
 					(
-						day,
+						15,
 						month + 1,
 						latitude,
-						elevations[latI * 720 + longI],
+						elevations[currentPos],
+						/*(day < 15)
+						? simpleInterp(day, -15, 15, cloud[(month + 11) % 12][currentPos], cloud[month][currentPos])
+						: simpleInterp(day, 15, daysInMonth + 15, cloud[month][currentPos], cloud[(month + 1) % 12][currentPos]),
 						(day < 15)
-						? simpleInterp(day, -15, 15, cloud[(month + 11) % 12][latI * 720 + longI], cloud[month][latI * 720 + longI])
-						: simpleInterp(day, 15, daysInMonth + 15, cloud[month][latI * 720 + longI], cloud[(month + 1) % 12][latI * 720 + longI]),
+						? simpleInterp(day, -15, 15, minT[(month + 11) % 12][currentPos], minT[month][currentPos])
+						: simpleInterp(day, 15, daysInMonth + 15, minT[month][currentPos], minT[(month + 1) % 12][currentPos]),
 						(day < 15)
-						? simpleInterp(day, -15, 15, minT[(month + 11) % 12][latI * 720 + longI], minT[month][latI * 720 + longI])
-						: simpleInterp(day, 15, daysInMonth + 15, minT[month][latI * 720 + longI], minT[(month + 1) % 12][latI * 720 + longI]),
-						(day < 15)
-						? simpleInterp(day, -15, 15, maxT[(month + 11) % 12][latI * 720 + longI], maxT[month][latI * 720 + longI])
-						: simpleInterp(day, 15, daysInMonth + 15, maxT[month][latI * 720 + longI], maxT[(month + 1) % 12][latI * 720 + longI]),
+						? simpleInterp(day, -15, 15, maxT[(month + 11) % 12][currentPos], maxT[month][currentPos])
+						: simpleInterp(day, 15, daysInMonth + 15, maxT[month][currentPos], maxT[(month + 1) % 12][currentPos]),*/
+						cloud[month][currentPos],
+						minT[month][currentPos],
+						maxT[month][currentPos],
 						0.0,
 						daylyI,
 						daylyT, 
@@ -781,3 +799,15 @@ int main(int argc, char* argv[])
 	printf("%f\n", duration);
 	return 0;
 }
+
+
+
+// Ejecutar programa: Ctrl + F5 o menú Depurar > Iniciar sin depurar
+// Depurar programa: F5 o menú Depurar > Iniciar depuración
+
+// Sugerencias para primeros pasos: 1. Use la ventana del Explorador de soluciones para agregar y administrar archivos
+//   2. Use la ventana de Team Explorer para conectar con el control de código fuente
+//   3. Use la ventana de salida para ver la salida de compilación y otros mensajes
+//   4. Use la ventana Lista de errores para ver los errores
+//   5. Vaya a Proyecto > Agregar nuevo elemento para crear nuevos archivos de código, o a Proyecto > Agregar elemento existente para agregar archivos de código existentes al proyecto
+//   6. En el futuro, para volver a abrir este proyecto, vaya a Archivo > Abrir > Proyecto y seleccione el archivo .sln
